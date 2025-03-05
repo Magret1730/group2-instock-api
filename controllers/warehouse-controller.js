@@ -91,6 +91,55 @@ const remove = async (req, res) => {
   }
 };
 
+function validate(
+  warehouse_name,
+  address,
+  city,
+  country,
+  contact_name,
+  contact_position,
+  contact_phone,
+  contact_email
+) {
+  // Validate warehouse_name
+  const warehouseNameRegex = /^[a-zA-Z0-9\s\-',.]+$/;
+  if (!warehouseNameRegex.test(warehouse_name)) {
+    return "Invalid warehouse name format. Warehouse name should only contain 'A-Z', 'a-z', '0-9', '-', ',', ' ', '.', '''.";
+  }
+  // Validate address
+  const addressRegex = /^[a-zA-Z0-9\s\-',.#/()]+$/;
+  if (!addressRegex.test(address)) {
+    return "Invalid address format. Address should only contain 'A-Z', 'a-z', '0-9', '-', ',', ' ', '.', '#', '/', '()', '''.";
+  }
+  // Validate city, country, and contact_name
+  const cityCountryContactnameRegex = /^[a-zA-Z\s\-']+$/;
+  if (!cityCountryContactnameRegex.test(city)) {
+    return "Invalid city format. City should only contain 'A-Z', 'a-z', '-', ' ', '''.";
+  }
+  if (!cityCountryContactnameRegex.test(country)) {
+    return "Invalid country format. Country should only contain 'A-Z', 'a-z', '-', ' ', '''.";
+  }
+  if (!cityCountryContactnameRegex.test(contact_name)) {
+    return "Invalid contact name format. Contact name should only contain 'A-Z', 'a-z', '-', ' ', '''.";
+  }
+  // Validate contact_position
+  const contactPositionRegex = /^[a-zA-Z0-9\s\-',./]+$/;
+  if (!contactPositionRegex.test(contact_position)) {
+    return "Invalid contact position format. Contact position should only contain 'A-Z', 'a-z', '-', ' ', ''', '.', '/'.";
+  }
+  // Validate phone number format
+  const phoneRegex = /^\+?\d{1,3}[-. ]?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}$/;
+  if (!phoneRegex.test(contact_phone)) {
+    return "Invalid phone number format. Expected format: +X (XXX) XXX-XXXX.";
+  }
+  // Validate email format
+  const emailRegex =
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (!emailRegex.test(contact_email)) {
+    return "Invalid email format. Example of valid format: user@example.com.";
+  }
+}
+
 const add = async (req, res) => {
   const {
     warehouse_name,
@@ -120,20 +169,29 @@ const add = async (req, res) => {
     });
   }
 
-  // phone and email validation
-  if (contact_phone.length < 9) {
-    return res.status(400).json({
-      message: "Please provide a valid phone number",
-    });
-  }
   if (
-    !contact_email.includes("@") ||
-    !contact_email.includes(".") ||
-    contact_email.indexOf("@") >
-      contact_email.indexOf(".", contact_email.indexOf("@"))
+    validate(
+      warehouse_name,
+      address,
+      city,
+      country,
+      contact_name,
+      contact_position,
+      contact_phone,
+      contact_email
+    )
   ) {
     return res.status(400).json({
-      message: "Please provide a valid email address",
+      message: validate(
+        warehouse_name,
+        address,
+        city,
+        country,
+        contact_name,
+        contact_position,
+        contact_phone,
+        contact_email
+      ),
     });
   }
 
