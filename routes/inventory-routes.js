@@ -7,6 +7,7 @@ router.route("/").get(inventoryController.index);
 
 router.route("/:id")
     .get(inventoryController.findOne)
-    .delete(inventoryController.remove);
+    .delete(inventoryController.remove)
+    .post(inventoryController.add);
 
 export default router;
