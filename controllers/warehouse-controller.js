@@ -220,7 +220,20 @@ const update = async (req, res) => {
       });
     }
     
-    res.status(200).json(updatedWarehouse);
+    // Extract only the required fields
+    const filteredWarehouse = {
+      warehouse_name: updatedWarehouse.warehouse_name,
+      address: updatedWarehouse.address,
+      city: updatedWarehouse.city,
+      country: updatedWarehouse.country,
+      contact_name: updatedWarehouse.contact_name,
+      contact_position: updatedWarehouse.contact_position,
+      contact_phone: updatedWarehouse.contact_phone,
+      contact_email: updatedWarehouse.contact_email
+    };
+
+    // Return the filtered warehouse as the response
+    res.status(200).json(filteredWarehouse);
   } catch (error) {
       res.status(500).json({
       message: `Unable to update warehouse with ID ${id}: ${error.message}` 
