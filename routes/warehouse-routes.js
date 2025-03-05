@@ -6,4 +6,6 @@ const router = express.Router();
 router.route("/").get(warehouseController.index);
 
 
+router.route("/:id").get(userController.findOne);
+
 export default router;
