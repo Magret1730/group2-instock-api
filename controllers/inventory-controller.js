@@ -122,8 +122,8 @@ const add = async (req, res) => {
         }
 
         //Validate that quantity is a number
-        if (isNaN(quantity)) {
-            return res.status(400).json({message: "Quantity must be a number"});
+        if (isNaN(quantity) || quantity < 0) {
+            return res.status(400).json({message: "Quantity must be a number greater than or equal to 0"});
         }
 
         const [newInventoryId] = await knex("inventories").insert(req.body);
