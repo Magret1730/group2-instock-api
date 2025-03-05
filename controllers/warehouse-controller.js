@@ -16,8 +16,8 @@ const findOne = async ( req, res) => {
         const { id } = req.params;
 
         if (isNaN(id)) {
-            return res.status(404).json({
-                message: `Warehouse with ID ${id} not found`
+            return res.status(400).json({
+                message: `Warehouse ID ${id} is invalid`
             });
         }
         const warehouseFound = await knex("warehouses")
