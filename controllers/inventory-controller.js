@@ -111,7 +111,7 @@ const add = async (req, res) => {
         } = req.body;
 
         //Check if any fields are empty
-        if (!item_name || !description || !category || !status || !quantity || !warehouse_id) {
+        if (!item_name || !description || !category || !status || !warehouse_id || quantity === undefined) {
         return res.status(400).json({message: "Please fill in all required fields"});
         }
 
@@ -122,7 +122,7 @@ const add = async (req, res) => {
         }
 
         //Validate that quantity is a number
-        if (isNaN(quantity) || quantity < 0) {
+        if (isNaN(quantity)) {
             return res.status(400).json({message: "Quantity must be a number greater than or equal to 0"});
         }
 
