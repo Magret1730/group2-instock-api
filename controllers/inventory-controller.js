@@ -128,17 +128,19 @@ const add = async (req, res) => {
 
         const [newInventoryId] = await knex("inventories").insert(req.body);
 
-        const newInventory = await knex("inventories").where({
-            id: newInventoryId,
-            item_name,
-            description,
-            category,
-            status,
-            quantity,
-            warehouse_id,
-        });
+        const newInventory = await knex("inventories")
+            .where({id: newInventoryId})
+            .select(
+              "id",
+              "item_name",
+              "description",
+              "category",
+              "status",
+              "quantity",
+              "warehouse_id",
+             );
 
-        res.status(201).json(newInventory);
+        res.status(201).json(newInventory[0]);
 
     } catch (err) {
       res.status(500).json({message: 'Unable to create new inventory item'});
