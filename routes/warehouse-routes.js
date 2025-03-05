@@ -7,7 +7,8 @@ router.route("/").get(warehouseController.index).post(warehouseController.add);
 router
   .route("/:id")
   .get(warehouseController.findOne)
-  .delete(warehouseController.remove);
+  .delete(warehouseController.remove)
+  .put(warehouseController.update);
 
 router.route("/:id/inventories").get(warehouseController.getInventories);
 

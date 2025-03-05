@@ -30,7 +30,7 @@ const findOne = async (req, res) => {
     const { id } = req.params;
 
     // checks for valid id
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return res.status(400).json({
         message: `Inventory with ID ${id} is invalid`,
       });
@@ -73,7 +73,7 @@ const remove = async (req, res) => {
     const { id } = req.params;
 
     // checks for valid id
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return res.status(400).json({
         message: `Inventory with ID ${id} is invalid`,
       });
@@ -98,4 +98,53 @@ const remove = async (req, res) => {
   }
 };
 
-export { index, findOne, remove };
+//Create a New Inventory Item
+const add = async (req, res) => {
+    try {
+        const {
+            item_name,
+            description,
+            category,
+            status,
+            quantity,
+            warehouse_id,
+        } = req.body;
+
+        //Check if any fields are empty
+        if (!item_name || !description || !category || !status || !warehouse_id || quantity === undefined) {
+        return res.status(400).json({message: "Please fill in all required fields"});
+        }
+
+        //Check if warehouse ID exists
+        const isWarehouseValid = await knex("warehouses").where({ id: warehouse_id }).first();
+        if (!isWarehouseValid ) {
+            return res.status(404).json({message: `Warehouse with ID ${warehouse_id} not found`});
+        }
+
+        //Validate that quantity is a number
+        if (isNaN(quantity) || quantity < 0) {
+            return res.status(400).json({message: "Quantity must be a number greater than or equal to 0"});
+        }
+
+        const [newInventoryId] = await knex("inventories").insert(req.body);
+
+        const newInventory = await knex("inventories")
+            .where({id: newInventoryId})
+            .select(
+              "id",
+              "item_name",
+              "description",
+              "category",
+              "status",
+              "quantity",
+              "warehouse_id",
+             );
+
+        res.status(201).json(newInventory[0]);
+
+    } catch (err) {
+      res.status(500).json({message: 'Unable to create new inventory item'});
+    }
+};
+  
+export { index, findOne, remove, add };;
