@@ -30,7 +30,7 @@ const findOne = async (req, res) => {
     const { id } = req.params;
 
     // checks for valid id
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return res.status(400).json({
         message: `Inventory with ID ${id} is invalid`,
       });
@@ -73,7 +73,7 @@ const remove = async (req, res) => {
     const { id } = req.params;
 
     // checks for valid id
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return res.status(400).json({
         message: `Inventory with ID ${id} is invalid`,
       });

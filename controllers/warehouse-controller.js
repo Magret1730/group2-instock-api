@@ -35,7 +35,7 @@ const validateBodyRequest = (body) => {
   }
 
   // Validate phone number format
-  const phoneRegex = /^\+1 \(\d{3}\) \d{3}-\d{4}$/;
+  const phoneRegex = /^\+?\d{1,3}[-. ]?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}$/;
   if (!phoneRegex.test(contact_phone)) {
     return "Invalid phone number format. Expected format: +1 (XXX) XXX-XXXX.";
   }
@@ -58,10 +58,17 @@ const validateBodyRequest = (body) => {
 
 const index = async (_req, res) => {
   try {
-    // Gets all warehouse data from db
-    const data = await knex("warehouses");
-
-    // Returns data and status
+    const data = await knex("warehouses").select(
+      "id",
+      "warehouse_name",
+      "address",
+      "city",
+      "country",
+      "contact_name",
+      "contact_position",
+      "contact_phone",
+      "contact_email"
+    );
     res.status(200).json(data);
   } catch (err) {
     res.status(400).send(`Error retrieving Warehouses: ${err}`);
@@ -74,7 +81,7 @@ const findOne = async (req, res) => {
     const { id } = req.params;
 
     // Checks for invalid ID
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return res.status(400).json({
         message: `Warehouse ID ${id} is invalid`,
       });
@@ -106,7 +113,7 @@ const getInventories = async (req, res) => {
     const { id } = req.params;
 
     // Checks for invalid ID
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return res.status(400).json({
         message: `Warehouse ID ${id} is invalid`,
       });
@@ -137,7 +144,7 @@ const remove = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return res.status(400).json({
         message: `Warehouse ID ${id} is invalid`,
       });
@@ -165,7 +172,7 @@ const update = async (req, res) => {
   const { id } = req.params;
 
   // Checks for invalid ID
-  if (isNaN(id)) {
+  if (isNaN(id) || id <= 0) {
     return res.status(400).json({
       message: `Warehouse ID ${id} is invalid`,
     });
@@ -178,19 +185,18 @@ const update = async (req, res) => {
   }
 
   // Create the updated warehouse object
-  // const newWarehouse = {
-  //   warehouse_name: req.body.warehouse_name,
-  //   address: req.body.address,
-  //   city: req.body.city,
-  //   country: req.body.country,
-  //   contact_name: req.body.contact_name,
-  //   contact_position: req.body.contact_position,
-  //   contact_phone: req.body.contact_phone,
-  //   contact_email: req.body.contact_email,
-  // };
+  const { warehouse_name, address, city, country, contact_name, contact_position, contact_phone, contact_email } = req.body;
 
-  // Create the updated warehouse object
-  const newWarehouse = { ...req.body };
+  const newWarehouse = {
+    warehouse_name,
+    address,
+    city,
+    country,
+    contact_name,
+    contact_position,
+    contact_phone,
+    contact_email
+  };
 
   try {
     const rowsUpdated = await knex("warehouses")
