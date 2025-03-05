@@ -64,4 +64,72 @@ const getInventories = async (req, res) => {
   }
 };
 
-export { index, findOne, getInventories };
+const add = async (req, res) => {
+  const {
+    warehouse_name,
+    address,
+    city,
+    country,
+    contact_name,
+    contact_position,
+    contact_phone,
+    contact_email,
+  } = req.body;
+
+  // all fields are required - check for empty fields
+  if (
+    !warehouse_name ||
+    !address ||
+    !city ||
+    !country ||
+    !contact_name ||
+    !contact_position ||
+    !contact_phone ||
+    !contact_email
+  ) {
+    return res.status(400).json({
+      message:
+        "Please provide all required warehouse properties in the request",
+    });
+  }
+
+  // phone and email validation
+  if (contact_phone.length < 9) {
+    return res.status(400).json({
+      message: "Please provide a valid phone number",
+    });
+  }
+  if (
+    !contact_email.includes("@") ||
+    !contact_email.includes(".") ||
+    contact_email.indexOf("@") >
+      contact_email.indexOf(".", contact_email.indexOf("@"))
+  ) {
+    return res.status(400).json({
+      message: "Please provide a valid email address",
+    });
+  }
+
+  try {
+    const result = await knex("warehouses").insert(req.body);
+    const newWarehouseId = result[0];
+    const createdWarehouse = await knex("warehouses").where({
+      id: newWarehouseId,
+      warehouse_name,
+      address,
+      city,
+      country,
+      contact_name,
+      contact_position,
+      contact_phone,
+      contact_email,
+    });
+    res.status(201).json(createdWarehouse);
+  } catch (err) {
+    res.status(500).json({
+      message: `Unable to create new warehouse: ${err}`,
+    });
+  }
+};
+
+export { index, findOne, getInventories, add };
