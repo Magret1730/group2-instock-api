@@ -13,8 +13,16 @@ const index = async (_req, res) => {
 
 const getInventories = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    if (isNaN(id)) {
+      return res.status(400).json({
+        message: `Warehouse ID ${id} is invalid`,
+      });
+    }
+
     const inventories = await knex("inventories")
-      .where("inventories.warehouse_id", req.params.id)
+      .where("inventories.warehouse_id", id)
       .join("warehouses", "warehouses.id", "inventories.warehouse_id")
       .select(
         "inventories.id",
@@ -26,7 +34,7 @@ const getInventories = async (req, res) => {
     res.status(200).json(inventories);
   } catch (err) {
     res.status(404).send({
-      message: `Unable to retrieve warehouse with ID ${req.params.id}`,
+      message: `Unable to retrieve warehouse with ID ${id}`,
     });
   }
 };
