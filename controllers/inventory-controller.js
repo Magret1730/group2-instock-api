@@ -155,6 +155,81 @@ const add = async (req, res) => {
   }
 };
 
-const update = async (req, res) => {};
+const update = async (req, res) => {
+  try {
+    // get id to make the request
+    const { id } = req.params;
+
+    // check for valid id
+    if (isNaN(id) || id <= 0) {
+      return res.status(400).json({
+        message: `Inventory with ID ${id} is invalid`,
+      });
+    }
+
+    const { warehouse_id, item_name, description, category, status, quantity } =
+      req.body;
+
+    // check if any fields are empty
+    if (
+      !warehouse_id ||
+      !item_name ||
+      !description ||
+      !category ||
+      !status ||
+      quantity === undefined
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Please fill in all required fields" });
+    }
+
+    const newInventoryItem = {
+      warehouse_id,
+      item_name,
+      description,
+      category,
+      status,
+      quantity,
+    };
+
+    // check if warehouse ID exists
+    const isWarehouseValid = await knex("warehouses")
+      .where({ id: warehouse_id })
+      .first();
+    if (!isWarehouseValid) {
+      return res
+        .status(400)
+        .json({ message: `Warehouse with ID ${warehouse_id} not found` });
+    }
+
+    const rowsUpdated = await knex("inventories")
+      .where({ id: id })
+      .update(newInventoryItem);
+    if (rowsUpdated === 0) {
+      return res.status(404).json({
+        message: `Inventory item with ID ${id} not found`,
+      });
+    }
+
+    // send only selected elements
+    const updatedInventoryItem = await knex("inventories")
+      .where({ id: id })
+      .select(
+        "id",
+        "warehouse_id",
+        "item_name",
+        "description",
+        "category",
+        "status",
+        "quantity"
+      );
+    res.status(200).json(updatedInventoryItem[0]);
+  } catch (err) {
+    res.status(500).json({
+      message: `Unable to update inventory item with ID ${id}: ${err}`,
+    });
+  }
+};
 
 export { index, findOne, remove, add, update };
