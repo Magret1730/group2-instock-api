@@ -184,6 +184,12 @@ const update = async (req, res) => {
         .json({ message: "Please fill in all required fields" });
     }
 
+    if (isNaN(quantity) || quantity < 0) {
+      return res.status(400).json({
+        message: "Quantity must be a number greater than or equal to 0",
+      });
+    }
+
     const newInventoryItem = {
       warehouse_id,
       item_name,
